@@ -6,16 +6,22 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
-const lista_musicas = []
+const struct_musica = {
+	connection : null,
+	voiceChannel : null,
+	textChannel : null,
+	musicas : []
+}
 
 // Create a new client instance
-//const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const client = new Client({ intents: [ 
   GatewayIntentBits.DirectMessages,
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildBans,
   GatewayIntentBits.GuildMessages,
-  GatewayIntentBits.MessageContent,] });
+  GatewayIntentBits.MessageContent,
+ GatewayIntentBits.GuildVoiceStates] });
+
 client.commands = new Collection();
 
 const foldersPath = path.join(__dirname,'commands');
@@ -49,17 +55,17 @@ client.on("messageCreate", (message) => {
 	//executa comandos de musica
 	if (command == "play") {
 		if (args.length < 2) return;	
-		//play(message,args[1],lista_musica) 
+		execute(message,args[1],struct_musica); 
 		return;
 	  } else if (command == "skip") {
-		message.reply("OK2")
+		message.reply("NAO IMPLEMENTADO")
 		return;
 	  } else if (command == "stop") {
-		message.reply("OK3");
+		message.reply("NAO IMPLEMENTADO");
 		return;
 	}
 
-	if(!client.commands.has(command)) {message.reply("nao tem esse comando ai n cuzao");return;};
+	if(!client.commands.has(command)) return message.reply("nao tem esse comando ai n cuzao");
 	//executa comandos gerais
 	try{
 		client.commands.get(command).execute(message,args);
@@ -69,9 +75,23 @@ client.on("messageCreate", (message) => {
 	}
 });
 
-function play(msg,url,lista_musicas){
+//executa configuracoes para tocar mscs
+async function execute(msg,url,lista_musicas){
+	const voiceChannel = msg.member.voice.channel;
+	if(!voiceChannel) {
+		return msg.reply("vc precisa estar em um canal de voz");
+	}
+	if(!ytdl.validateURL(url)) return;
+	const msc_info = await ytdl.getInfo(url);
+	const musica = {
+		titulo: msc_info.videoDetails.title,
+		url: url,
+	};
 
+	msg.reply(`O titulo do video e ${musica.titulo}`);
+}
 
+function play(musica){
 }
 
 function skip(msg,lista_musicas){}
