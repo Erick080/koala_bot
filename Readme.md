@@ -1,7 +1,5 @@
 Antes de executar, precisa instalar as dependencias:
-
-npm i libsodium-wrappers fluent-ffmpeg ffmpeg-static ffmpeg  
-
+npm install
 
 A fazer:
 
