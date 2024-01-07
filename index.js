@@ -4,6 +4,10 @@ const fs = require('node:fs');
 const ytdl = require('ytdl-core');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+//const {joinVoiceChannel} = require('@discordjs/opus');
+//const joinVoiceChannel = require('@discordjs/voice');
+const joinVoiceChannel = require('@discordjs/voice').joinVoiceChannel;
+const {demuxProbe, createAudioResource, createAudioPlayer } = require('@discordjs/voice');
 const { token } = require('./config.json');
 
 const struct_musica = {
@@ -54,6 +58,7 @@ client.on("messageCreate", (message) => {
 	const command = args[0].toLowerCase();
 	//executa comandos de musica
 	if (command == "play") {
+		if(!struct_musica.connection) join(message,struct_musica);
 		if (args.length < 2) return;	
 		execute(message,args[1],struct_musica); 
 		return;
@@ -75,6 +80,18 @@ client.on("messageCreate", (message) => {
 	}
 });
 
+async function join(msg,lista_musicas){
+	const voiceChannel = msg.member.voice.channel;
+	if(!voiceChannel) msg.reply("vc precisa estar em um canal de voz");
+	const connection = await joinVoiceChannel({
+				channelId : msg.member.voice.channel.id,
+				guildId : msg.guild.id,
+				adapterCreator : msg.guild.voiceAdapterCreator,
+			});
+	lista_musicas.connection = connection;
+
+}
+
 //executa configuracoes para tocar mscs
 async function execute(msg,url,lista_musicas){
 	const voiceChannel = msg.member.voice.channel;
@@ -88,15 +105,48 @@ async function execute(msg,url,lista_musicas){
 		url: url,
 	};
 
-	msg.reply(`O titulo do video e ${musica.titulo}`);
+	lista_musicas.voiceChannel = voiceChannel;
+	lista_musicas.textChannel = msg.channel;
+	lista_musicas.musicas.push(musica);
+
+	msg.channel.send(`${musica.titulo} foi adicionado a fila`);
+	if(lista_musicas.musicas.length == 1){
+		play(lista_musicas.musicas[0],lista_musicas.connection);
+	}
+
 }
 
-function play(musica){
+async function play(musica,connection){
+	const player = createAudioPlayer();
+	if(!musica){
+		player.stop();
+		return;
+	}
+
+	const stream = ytdl(musica.url, {filter : 'audioonly'});
+	const resource = createAudioResource(stream,{inlineVolume : true});
+	resource.volume.setVolume(0.5);
+	resource.playStream
+		.on("finish",() => {
+			struct_musica.musicas.shift();
+			play(struct_musica.musicas[0]);
+		})
+		.on("error",error => console.log("erro"))
+	
+	struct_musica.textChannel.send(`Tocando ${musica.titulo}`);
+	connection.subscribe(player);
+	player.play(resource);
 }
+
 
 function skip(msg,lista_musicas){}
 
 function stop(msg,lista_musicas){}
+
+async function probeAndCreateResource(readableStream) {
+		const { stream, type } = await demuxProbe(readableStream);
+		return createAudioResource(stream, { inputType: type });
+}
 
 
 client.login(token);
