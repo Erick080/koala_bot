@@ -1,7 +1,4 @@
-/node_modules/ffmpeg/
-/node_modules/ffmpeg-static/
-/node_modules/fluent-ffmpeg/
-/node_modules/libsodium-wrappers/
+node_modules
 
 
 
