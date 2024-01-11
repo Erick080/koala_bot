@@ -1,11 +1,11 @@
 module.exports = {
   name: "roll",
   async execute(message, args) {
-    var res = await this.roll(args)
+    var res = await this.roll(args[args.length-1])
     message.reply(res);
   },
   async roll(args) {
-    const roll = args[args.length - 1].split("d");
+    const roll = args.split("d")
     //definir a quantia e lados de dados
     //nr = Number of rolls
     var nr = roll[0];
@@ -47,7 +47,7 @@ module.exports = {
       lista +
       "]" +
       "  " +
-      args[args.length - 1]
+      args
     );
   },
 };
