@@ -2,6 +2,7 @@
 const prefix = 'k.';
 const fs = require('node:fs');
 const ytdl = require('ytdl-core');
+const yt_sr = require('youtube-sr').default;
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const joinVoiceChannel = require('@discordjs/voice').joinVoiceChannel;
@@ -63,7 +64,7 @@ client.on("messageCreate", (message) => {
 		struct_musica.player = createAudioPlayer();
 		if (!struct_musica.connection) join(message, struct_musica);
 		if (args.length < 2) return;
-		execute(message, args[1], struct_musica);
+		execute(message, args.slice(1), struct_musica);
 		return;
 	} else if (command == "stop") {
 		stop(message, struct_musica.player);
@@ -93,18 +94,29 @@ async function join(msg, lista_musicas) {
 }
 
 //executa configuracoes para tocar mscs
-async function execute(msg, url, lista_musicas) {
+async function execute(msg, args, lista_musicas) {
 	const voiceChannel = msg.member.voice.channel;
 	if (!voiceChannel) {
 		return msg.reply("vc precisa estar em um canal de voz");
 	}
-	if (!ytdl.validateURL(url)) return;
-	const msc_info = await ytdl.getInfo(url);
-	const musica = {
-		titulo: msc_info.videoDetails.title,
-		url: url,
-	};
+	var msc_info = {}
+	var musica = {}
 
+	if(args[0].startsWith('https')){
+		if (!ytdl.validateURL(args)) return;
+		msc_info = await ytdl.getInfo(args);
+		musica = {
+			titulo: msc_info.videoDetails.title,
+			url: args,
+		};
+	} else{
+		let url = (await yt_sr.searchOne(args.toString())).url
+		musica = {
+			titulo : args.toString(),
+			url : url,
+		};
+	}
+	
 	lista_musicas.voiceChannel = voiceChannel;
 	lista_musicas.textChannel = msg.channel;
 	lista_musicas.musicas.push(musica);
