@@ -1,14 +1,20 @@
 module.exports = {
   name: "roll",
   async execute(message, args) {
-    var res = await this.roll(args[args.length-1])
+    var res = await this.roll(args.slice(1))
     message.reply(res);
   },
   async roll(args) {
-    const roll = args.split("d")
+    const roll = args[args.length-1].split("d")
+
+    console.log(args)
+    console.log(args.length)
+
+    console.log(roll)
     //definir a quantia e lados de dados
     //nr = Number of rolls
     var nr = roll[0];
+
     //ns = number of sides
     var ns = roll[1];
 
@@ -26,14 +32,17 @@ module.exports = {
       resultado += sides;
     }
 
-    if (args.length > 2) {
-      switch (args[1]) {
+    if (args.length == 2) {
+      switch (args[0]) {
         case "-":
           lista = lista.sort((a, b) => a - b);
           break;
         case "+":
           lista = lista.sort((a, b) => b - a);
           break;
+        default:
+          console.log(args,"erro")
+          break
       }
       resultado = lista[0];
     }
@@ -47,7 +56,7 @@ module.exports = {
       lista +
       "]" +
       "  " +
-      args
+      args[args.length-1]
     );
   },
 };
