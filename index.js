@@ -113,11 +113,12 @@ async function execute(msg, args, lista_musicas) {
 	var musica = {}
 
 	if(args[0].startsWith('https')){
-		if (!ytdl.validateURL(args)) return;
-		msc_info = await ytdl.getInfo(args);
+		console.log("entrou")
+		if (!ytdl.validateURL(args[0])) return;
+		msc_info = await ytdl.getInfo(args[0]);
 		musica = {
 			titulo: msc_info.videoDetails.title,
-			url: args,
+			url: args[0],
 		};
 	} else{
 		let url = (await yt_sr.searchOne(args.toString())).url
@@ -126,7 +127,6 @@ async function execute(msg, args, lista_musicas) {
 			url : url,
 		};
 	}
-	
 	lista_musicas.voiceChannel = voiceChannel;
 	lista_musicas.textChannel = msg.channel;
 	lista_musicas.musicas.push(musica);
