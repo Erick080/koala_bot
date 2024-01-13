@@ -69,6 +69,16 @@ client.on("messageCreate", (message) => {
 	} else if (command == "stop") {
 		stop(message, struct_musica.player);
 		return;
+	} 
+	//mostra lista de comandos; 
+		else if(command == 'commands'){
+			var listacomando = '```';
+		for(const [nome,comando] of client.commands){
+			listacomando += 'k.'+nome+' => ' + comando.description +'\n'
+		}
+		listacomando += '```'
+		message.reply(listacomando)
+		return
 	}
 
 	if (!client.commands.has(command)) return message.reply("nao tem esse comando ai n cuzao");

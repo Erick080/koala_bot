@@ -153,3 +153,11 @@ function skip(msg, lista_musicas) {}
 function stop(msg, lista_musicas) {}
 
 client.login(token);
+
+
+/*module.exports = {
+  name : 'commands',
+  async execute(message, args){
+      console.log(__dirname)
+  }
+}*/

@@ -1,5 +1,6 @@
 module.exports = {
   name: "roll",
+  description: 'Rola dados. 2d20 irá rolar 2 dados de 20 lados',
   async execute(message, args) {
     var res = await this.roll(args.slice(1))
     message.reply(res);
