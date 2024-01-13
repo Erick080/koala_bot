@@ -113,8 +113,6 @@ async function execute(msg, args, lista_musicas) {
 	var musica = {}
 
 	if(args[0].startsWith('https')){
-		console.log("entrou")
-		if (!ytdl.validateURL(args[0])) return;
 		msc_info = await ytdl.getInfo(args[0]);
 		musica = {
 			titulo: msc_info.videoDetails.title,
