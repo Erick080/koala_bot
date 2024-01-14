@@ -121,7 +121,7 @@ async function execute(msg, args, lista_musicas) {
 	} else{
 		let url = (await yt_sr.searchOne(args.toString())).url
 		musica = {
-			titulo : args.toString(),
+			titulo : await ytdl.getInfo(url).then((info) => {return info.videoDetails.title}),
 			url : url,
 		};
 	}
