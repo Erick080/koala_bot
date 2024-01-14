@@ -1,6 +1,6 @@
 module.exports = {
     name : 'rf',
-    description: 'x1 de dados. Exemplo = k.rf - 2d20 pessoa1 pessoa2 pessoa3',
+    description: 'Batalha de dados. Exemplo = k.rf 2d20 pessoa1 pessoa2 pessoa3',
     async execute(message,args){
         var dado = require('./roll.js')
         //const roll = args[1]

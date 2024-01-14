@@ -71,17 +71,12 @@ client.on("messageCreate", (message) => {
 		return;
 	} 
 	//mostra lista de comandos; 
-		else if(command == 'commands'){
-			var listacomando = '```';
-		for(const [nome,comando] of client.commands){
-			listacomando += 'k.'+nome+' => ' + comando.description +'\n'
-		}
-		listacomando += '```'
-		message.reply(listacomando)
+	else if(command == 'commands'){
+		message.reply(list_commands(client.commands))
 		return
 	}
 
-	if (!client.commands.has(command)) return message.reply("nao tem esse comando ai n cuzao");
+	if (!client.commands.has(command)) return message.reply("esse comando nao existe");
 	//executa comandos gerais
 	try {
 		client.commands.get(command).execute(message, args);
@@ -159,10 +154,21 @@ async function play(musica, connection, player) {
 
 }
 
-
 function stop(msg, player) {
 	player.stop();
 	msg.reply("playlist parada");
+
+}
+
+function list_commands(commandlist){
+		var listacomando = '```';
+		for(const [nome,comando] of commandlist){
+			listacomando += 'k.'+nome+' => ' + comando.description +'\n'
+		}
+		listacomando += 'k.play [nome/url] => Adiciona musica selecionada para a fila.\n'
+		listacomando += 'k.stop => Para a reprodução de audio do bot.\n'
+		listacomando += '```'
+		return listacomando
 
 }
 

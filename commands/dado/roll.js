@@ -1,6 +1,6 @@
 module.exports = {
   name: "roll",
-  description: 'Rola dados. 2d20 irá rolar 2 dados de 20 lados',
+  description: 'Rola dados. k.roll [vantagem] [dado], exemplo: k.roll + 2d20 para rodar 2 dados de 20 lados com vantagem, colocar vantagem é opcional.',
   async execute(message, args) {
     var res = await this.roll(args.slice(1))
     message.reply(res);
