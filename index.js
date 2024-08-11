@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const prefix = 'k.';
 const fs = require('node:fs');
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const yt_sr = require('youtube-sr').default;
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
