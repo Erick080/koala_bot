@@ -1,5 +1,4 @@
-// Require the necessary discord.js classes
-const prefix = 'k.';
+const prefix = 'k.'; // prefixo dos comandos do bot
 const fs = require('node:fs');
 const ytdl = require('@distube/ytdl-core');
 const yt_sr = require('youtube-sr').default;
@@ -18,7 +17,6 @@ const struct_musica = {
 
 }
 
-// Create a new client instance
 const client = new Client({
 	intents: [
 		GatewayIntentBits.DirectMessages,
@@ -34,6 +32,7 @@ client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
+// procura por subdiretorios do diretorio commands para achar listas de comandos, ao achar adiciona na lista client.commands
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -48,26 +47,28 @@ for (const folder of commandFolders) {
 		}
 	}
 }
-// When the client is ready, run this code (only once).
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
+
+// login, acontece apenas uma vez, quando o bot eh iniciado
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
+// fica lendo mensagens do chat, verificando se alguma eh um comando reconhecido
 client.on("messageCreate", (message) => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 	const args = message.content.slice(prefix.length).trim().split(" ")
 	const command = args[0].toLowerCase();
+
 	//executa comandos de musica
+	//TODO: Criar pasta de musica para incluir ela nos comandos gerais
 	if (command == "play") {
 		struct_musica.player = createAudioPlayer();
 		if (!struct_musica.connection) join(message, struct_musica);
-		if (args.length < 2) return;
+		if (args.length < 2) return;  //TODO: Overload sem parametros para quando tiverem musicas na queue mas o bot esta pausado
 		execute(message, args.slice(1), struct_musica);
 		return;
 	} else if (command == "stop") {
-		stop(message, struct_musica.player);
+		stop(message, struct_musica);
 		return;
 	} 
 	//mostra lista de comandos; 
@@ -76,7 +77,10 @@ client.on("messageCreate", (message) => {
 		return
 	}
 
-	if (!client.commands.has(command)) return message.reply("esse comando nao existe");
+	if (!client.commands.has(command)){ 
+		return message.reply("esse comando nao existe");
+	}
+
 	//executa comandos gerais
 	try {
 		client.commands.get(command).execute(message, args);
@@ -107,13 +111,14 @@ async function execute(msg, args, lista_musicas) {
 	var msc_info = {}
 	var musica = {}
 
-	if(args[0].startsWith('https')){
+	//procura o video usando api de busca do yt
+	if(args[0].startsWith('https')){ //se for inserido o link
 		msc_info = await ytdl.getInfo(args[0]);
 		musica = {
 			titulo: msc_info.videoDetails.title,
 			url: args[0],
 		};
-	} else{
+	} else { //se for inserido apenas o nome
 		let url = (await yt_sr.searchOne(args.toString())).url
 		musica = {
 			titulo : await ytdl.getInfo(url).then((info) => {return info.videoDetails.title}),
@@ -132,9 +137,8 @@ async function execute(msg, args, lista_musicas) {
 }
 
 async function play(musica, connection, player) {
-	//	const player = createAudioPlayer();
 	if (!musica) {
-		player.stop();
+		player.stop(true);
 		return;
 	}
 
@@ -144,9 +148,13 @@ async function play(musica, connection, player) {
 	resource.playStream
 		.on("finish", () => {
 			struct_musica.musicas.shift();
-			play(struct_musica.musicas[0]);
+			if (struct_musica.length > 0){
+				play(struct_musica.musicas[0]);
+			}
+			else
+				play(struct_musica.musicas[0]);
 		})
-		.on("error", error => console.log("erro"))
+		.on("error", error => console.log(error))
 
 	struct_musica.textChannel.send(`Tocando ${musica.titulo}`);
 	connection.subscribe(player);
@@ -154,9 +162,13 @@ async function play(musica, connection, player) {
 
 }
 
-function stop(msg, player) {
-	player.stop();
-	msg.reply("playlist parada");
+//limpa a lista de musicas e pausa a reproducao
+function stop(msg, musica) {
+	if (musica.player.state() == Playing){
+		musica.player.pause(true);
+		musica.musicas.splice(0, musica, musicas.length);
+		msg.reply("playlist limpa");
+	}
 
 }
 
@@ -166,7 +178,7 @@ function list_commands(commandlist){
 			listacomando += 'k.'+nome+' => ' + comando.description +'\n'
 		}
 		listacomando += 'k.play [nome/url] => Adiciona musica selecionada para a fila.\n'
-		listacomando += 'k.stop => Para a reprodução de audio do bot.\n'
+		listacomando += 'k.stop => Para a reprodução de audio do bot, limpando a playlist\n'
 		listacomando += '```'
 		return listacomando
 
