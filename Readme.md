@@ -11,6 +11,6 @@ As demais dependencias são instaladas com npm install.
 ```sh
 node index.js
 ```
-OBS: É preciso criar um arquivo config.json e inserir o token de seu bot nele, caso contrário o bot não conseguirá logar no discord.
+OBS: É preciso criar um arquivo .env e inserir o token de seu bot em uma variavel TOKEN, caso contrário o bot não conseguirá logar no discord.
 
 Para ver a lista de comandos disponíveis usar k.commands.

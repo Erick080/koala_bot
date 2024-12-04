@@ -6,7 +6,8 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const joinVoiceChannel = require('@discordjs/voice').joinVoiceChannel;
 const { createAudioResource, createAudioPlayer } = require('@discordjs/voice');
-const { token } = require('./config.json');
+require('dotenv').config()
+const token = process.env.TOKEN;
 
 const struct_musica = {
 	connection: null,
@@ -14,7 +15,6 @@ const struct_musica = {
 	textChannel: null,
 	player: null,
 	musicas: []
-
 }
 
 const client = new Client({
@@ -65,7 +65,7 @@ client.on("messageCreate", (message) => {
 		struct_musica.player = createAudioPlayer();
 		if (!struct_musica.connection) join(message, struct_musica);
 		if (args.length < 2) return;  //TODO: Overload sem parametros para quando tiverem musicas na queue mas o bot esta pausado
-		execute(message, args.slice(1), struct_musica);
+		search_music(message, args.slice(1), struct_musica);
 		return;
 	} else if (command == "stop") {
 		stop(message, struct_musica);
@@ -90,6 +90,10 @@ client.on("messageCreate", (message) => {
 	}
 });
 
+/**
+  * @param {string}	   msg			referencia a mensagem requisitando o bot para entrar na chamada
+  * @param {struct_musica} lista_musicas	referencia para a struct_musica 
+  */
 async function join(msg, lista_musicas) {
 	const voiceChannel = msg.member.voice.channel;
 	if (!voiceChannel) msg.reply("vc precisa estar em um canal de voz");
@@ -99,11 +103,14 @@ async function join(msg, lista_musicas) {
 		adapterCreator: msg.guild.voiceAdapterCreator,
 	});
 	lista_musicas.connection = connection;
-
 }
 
-//executa configuracoes para tocar mscs
-async function execute(msg, args, lista_musicas) {
+/**
+  * @param {string}	   msg			referencia para a mensagem que o bot processou
+  * @param {string}	   args			link ou nome da musica informado no comando	
+  * @param {struct_musica} lista_musicas	referencia para a struct_musica
+  */
+async function search_music(msg, args, lista_musicas) {
 	const voiceChannel = msg.member.voice.channel;
 	if (!voiceChannel) {
 		return msg.reply("vc precisa estar em um canal de voz");
@@ -130,12 +137,18 @@ async function execute(msg, args, lista_musicas) {
 	lista_musicas.musicas.push(musica);
 
 	msg.channel.send(`${musica.titulo} foi adicionado a fila`);
+	console.log(lista_musicas.musicas.length)
 	if (lista_musicas.musicas.length == 1) {
 		play(lista_musicas.musicas[0], lista_musicas.connection, lista_musicas.player);
 	}
 
 }
 
+/**
+  * @param {titulo, url}      musica	  tupla com informacoes sobre a musica.
+  * @param {VoiceConnection}  connection  representa a conexao do bot com o canal de voz
+  * @param {AudioPlayer}      player      utilizado para reproduzir audio	
+  */
 async function play(musica, connection, player) {
 	if (!musica) {
 		player.stop(true);
@@ -162,13 +175,14 @@ async function play(musica, connection, player) {
 
 }
 
-//limpa a lista de musicas e pausa a reproducao
-function stop(msg, musica) {
-	if (musica.player.state() == Playing){
-		musica.player.pause(true);
-		musica.musicas.splice(0, musica, musicas.length);
-		msg.reply("playlist limpa");
-	}
+/**
+  * @param {string}	   msg			referencia a mensagem requisitando o bot para entrar na chamada
+  * @param {struct_musica} lista_musicas	referencia para a struct_musica 
+  */
+function stop(msg, lista_musicas) {
+	lista_musicas.player.pause(true);
+	lista_musicas.musicas.length = 0;
+	msg.reply("playlist limpa");
 
 }
 
