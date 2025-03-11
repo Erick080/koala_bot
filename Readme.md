@@ -1,9 +1,9 @@
-Bot para servidores de discord com funcionalidades de reproduzir audios do yotube e sistema de rolagem de dados.
+Bot para servidores de discord com funcionalidades de reproduzir audios do YouTube e sistema de rolagem de dados.
 
 ## Dependências
  - nodejs >= 21.5.0
  - python3
- - ffmpeg (apenas se for usar a integração com yt)
+ - ffmpeg (apenas se for usar a integração com YouTube)
   
 As demais dependencias são instaladas com npm install.
 
