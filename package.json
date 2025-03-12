@@ -1,17 +1,17 @@
 {
   "name": "koala_bot",
   "version": "1.0.0",
-  "description": "bot para servidor do dc",
+  "description": "Bot para servidores do Discord",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "erick e oscar",
+  "author": "Erick Machado e Oscar Flavio",
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "github:discordjs/opus",
     "@discordjs/voice": "^0.16.1",
-    "@distube/ytdl-core": "^4.14.4",
+    "@distube/ytdl-core": "^4.16.4",
     "@mapbox/node-pre-gyp": "^1.0.11",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.7",
