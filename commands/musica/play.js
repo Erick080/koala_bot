@@ -2,6 +2,7 @@ const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
 const ytdl = require('@distube/ytdl-core');
 const yt_sr = require('youtube-sr').default;
 const joinVoiceChannel = require('@discordjs/voice').joinVoiceChannel;
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'play',
@@ -38,12 +39,17 @@ async function search_music(msg, args, lista_musicas) {
     msc_info = await ytdl.getInfo(args[0]);
     musica = {
       titulo: msc_info.videoDetails.title,
+      autor: msc_info.author.name,
       url: args[0],
     };
   } else {
     let url = (await yt_sr.searchOne(args.toString())).url; //TODO: Add param opcional para mostrar mais de 1 opcao
+    msc_info = await ytdl.getInfo(url).then((info) => {return info.videoDetails})
+    console.log(msc_info)
+
     musica = {
-      titulo: await ytdl.getInfo(url).then((info) => { return info.videoDetails.title }),
+      titulo: msc_info.title,
+      autor: msc_info.author.name,
       url: url,
     };
   }
@@ -51,8 +57,16 @@ async function search_music(msg, args, lista_musicas) {
   lista_musicas.textChannel = msg.channel;
   lista_musicas.musicas.push(musica);
 
-  //TODO: Utilizar embed para essa msg
   msg.channel.send(`${musica.titulo} foi adicionado à fila`);
+
+  musica_embed = new EmbedBuilder()
+                    .setTitle(musica.titulo)
+                    .setURL(musica.url)
+                    .setAuthor({name: musica.autor})
+                    .setDescription(`Adicionado na posicao #${lista_musicas.musicas.length} da fila.`)
+
+  msg.channel.send({ embeds: [musica_embed]})
+
   if (lista_musicas.musicas.length === 1) {
     play(lista_musicas.musicas[0], lista_musicas.connection, lista_musicas.player, lista_musicas);
   }
@@ -82,8 +96,6 @@ async function play(musica, connection, player, struct_musica) {
     })
     .on("error", error => console.log(error));
 
-  //TODO: Utilizar embed para essa msg
-  struct_musica.textChannel.send(`Tocando ${musica.titulo}`);
   connection.subscribe(player);
   player.play(resource);
 }
