@@ -21,7 +21,7 @@ module.exports = {
     collector.on("collect", (m) => {
       let tentativa = parseInt(m.content.trim());
       let tentativasRestantes = tentativas - collector.collected.size;
-      if (isNaN(tentativa) || tentativa < 1 || tentativa > 100) {
+      if (tentativa < 1 || tentativa > 100) {
         return m.reply("Por favor, digite um número válido entre 1 e 100.");
       }
 
