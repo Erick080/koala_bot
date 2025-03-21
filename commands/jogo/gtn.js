@@ -22,9 +22,7 @@ module.exports = {
       let tentativa = parseInt(m.content.trim());
       let tentativasRestantes = tentativas - collector.collected.size;
       if (isNaN(tentativa) || tentativa < 1 || tentativa > 100) {
-        return message.reply(
-          "Por favor, digite um número válido entre 1 e 100."
-        );
+        return m.reply("Por favor, digite um número válido entre 1 e 100.");
       }
 
       if (tentativa === num) {
@@ -36,7 +34,7 @@ module.exports = {
           collector.stop();
         } else {
           let dica = tentativa < num ? "maior" : "menor";
-          message.reply(
+          m.reply(
             `O número que pensei é ${dica} que ${tentativa}. \nVocê tem ${tentativasRestantes} tentativas restantes. Digite um número:`
           );
         }
