@@ -29,10 +29,7 @@ module.exports = {
         message.reply("🎉 Parabéns! Você acertou! 🎉");
         collector.stop();
       } else {
-        if (tentativasRestantes === 0) {
-          message.reply(`❌ Suas tentativas acabaram! O número era ${num}.`);
-          collector.stop();
-        } else {
+        if (tentativasRestantes > 0) {
           let dica = tentativa < num ? "maior" : "menor";
           m.reply(
             `O número que pensei é ${dica} que ${tentativa}. \nVocê tem ${tentativasRestantes} tentativas restantes. Digite um número:`
@@ -44,6 +41,9 @@ module.exports = {
     collector.on("end", (_, reason) => {
       if (reason !== "user" && tentativasRestantes > 0) {
         message.reply(`⏳ Tempo esgotado! O número era ${num}.`);
+      } else if (tentativasRestantes === 0) {
+        message.reply(`❌ Suas tentativas acabaram! O número era ${num}.`);
+        collector.stop();
       }
     });
   },
